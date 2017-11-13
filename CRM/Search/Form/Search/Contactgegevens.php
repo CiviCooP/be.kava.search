@@ -12,48 +12,18 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function buildForm(&$form) {
     CRM_Utils_System::setTitle(E::ts('Contacten'));
 
-    $form->add('text',
-      'household_name',
-      E::ts('Household Name'),
-      TRUE
-    );
+    $formElements = array();
 
-    $stateProvince = array('' => E::ts('- any state/province -')) + CRM_Core_PseudoConstant::stateProvince();
-    $form->addElement('select', 'state_province_id', E::ts('State/Province'), $stateProvince);
+    $form->add('text', 'contact_name', 'Naam contact',TRUE);
+    $formElements[] = 'contact_name';
 
-    // Optionally define default search values
-    $form->setDefaults(array(
-      'household_name' => '',
-      'state_province_id' => NULL,
-    ));
-
-    /**
-     * if you are using the standard template, this array tells the template what elements
-     * are part of the search criteria
-     */
-    $form->assign('elements', array('household_name', 'state_province_id'));
+    $form->assign('elements', $formElements);
   }
 
-  /**
-   * Get a list of summary data points
-   *
-   * @return mixed; NULL or array with keys:
-   *  - summary: string
-   *  - total: numeric
-   */
   function summary() {
     return NULL;
-    // return array(
-    //   'summary' => 'This is a summary',
-    //   'total' => 50.0,
-    // );
   }
 
-  /**
-   * Get a list of displayable columns
-   *
-   * @return array, keys are printable column headers and values are SQL column names
-   */
   function &columns() {
     // return by reference
     $columns = array(
@@ -65,40 +35,22 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     return $columns;
   }
 
-  /**
-   * Construct a full SQL query which returns one page worth of results
-   *
-   * @param int $offset
-   * @param int $rowcount
-   * @param null $sort
-   * @param bool $includeContactIDs
-   * @param bool $justIDs
-   * @return string, sql
-   */
   function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $justIDs = FALSE) {
-    // delegate to $this->sql(), $this->select(), $this->from(), $this->where(), etc.
-    return $this->sql($this->select(), $offset, $rowcount, $sort, $includeContactIDs, NULL);
+    $sql = $this->sql($this->select(), $offset, $rowcount, $sort, $includeContactIDs, NULL);
+    return $sql;
   }
 
-  /**
-   * Construct a SQL SELECT clause
-   *
-   * @return string, sql fragment with SELECT arguments
-   */
   function select() {
-    return "
+    $select = "
       contact_a.id           as contact_id  ,
       contact_a.contact_type as contact_type,
       contact_a.sort_name    as sort_name,
-      state_province.name    as state_province
+      state_province.name    as state_province    
     ";
+
+    return $select;
   }
 
-  /**
-   * Construct a SQL FROM clause
-   *
-   * @return string, sql fragment with FROM and JOIN clauses
-   */
   function from() {
     return "
       FROM      civicrm_contact contact_a
@@ -110,15 +62,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     ";
   }
 
-  /**
-   * Construct a SQL WHERE clause
-   *
-   * @param bool $includeContactIDs
-   * @return string, sql fragment with conditional expressions
-   */
   function where($includeContactIDs = FALSE) {
     $params = array();
-    $where = "contact_a.contact_type   = 'Household'";
+    $where = "contact_a.contact_type   = 'Individual'";
 
     $count  = 1;
     $clause = array();
