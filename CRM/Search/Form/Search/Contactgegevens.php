@@ -10,11 +10,11 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   }
 
   function buildForm(&$form) {
-    CRM_Utils_System::setTitle(E::ts('Contacten'));
+    CRM_Utils_System::setTitle('Contacten');
 
     $formElements = array();
 
-    $form->add('text', 'contact_name', 'Naam contact',TRUE);
+    $form->add('text', 'contact_name', 'Naam contact', TRUE);
     $formElements[] = 'contact_name';
 
     $form->assign('elements', $formElements);
