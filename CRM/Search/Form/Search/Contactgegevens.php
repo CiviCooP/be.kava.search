@@ -51,7 +51,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       '3' => 'alleen TD1',
       '4' => '-',
     );
-    $form->addRadio('tarif', 'TD', $contactTypeChoices);
+    $form->addRadio('tarif', 'TD', $tarifChoices);
     $formElements[] = 'tarif';
 
     $form->setDefaults(array(
@@ -247,6 +247,27 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       }
       else if ($contact_type == 4) {
         // iedereen
+      }
+      $count++;
+    }
+
+    // tarifiering
+    $tarif = CRM_Utils_Array::value('tarif', $this->_formValues);
+    if ($tarif != NULL) {
+      if ($tarif == 1) {
+        // TD1+TD3
+        $clause[] = "tarif_name in ('TD1', 'TD3')";
+      }
+      else if ($tarif == 2) {
+        // TD3
+        $clause[] = "tarif_name = 'TD3'";
+      }
+      else if ($tarif == 3) {
+        // TD1
+        $clause[] = "tarif_name = 'TD1'";
+      }
+      else if ($tarif == 4) {
+        //
       }
       $count++;
     }
