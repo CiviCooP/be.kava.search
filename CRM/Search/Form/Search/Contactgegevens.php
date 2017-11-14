@@ -14,9 +14,13 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     $formElements = array();
 
-    // contact name field
-    $form->add('text', 'contact_name', 'Naam contact', TRUE);
-    $formElements[] = 'contact_name';
+    // contact first name field
+    $form->add('text', 'contact_first_name', 'Voornaam contact', TRUE);
+    $formElements[] = 'contact_first_name';
+
+    // contact last name field
+    $form->add('text', 'contact_last_name', 'Naam contact', TRUE);
+    $formElements[] = 'contact_last_name';
 
     // groothandel
     $form->addElement('checkbox', 'groothandel', 'incl. Groothandel');
@@ -34,8 +38,6 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $columns = array(
       E::ts('Name') => 'sort_name',
       E::ts('Contact Id') => 'contact_id',
-      E::ts('Contact Type') => 'contact_type',
-      E::ts('State') => 'state_province',
     );
     return $columns;
   }
@@ -48,9 +50,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function select() {
     $select = "
       contact_a.sort_name,
-      contact_a.id           as contact_id  ,
-      contact_a.contact_type as contact_type,
-      state_province.name    as state_province    
+      contact_a.id as contact_id  ,
     ";
 
     return $select;
@@ -58,12 +58,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
   function from() {
     return "
-      FROM      civicrm_contact contact_a
-      LEFT JOIN civicrm_address address ON ( address.contact_id       = contact_a.id AND
-                                             address.is_primary       = 1 )
-      LEFT JOIN civicrm_email           ON ( civicrm_email.contact_id = contact_a.id AND
-                                             civicrm_email.is_primary = 1 )
-      LEFT JOIN civicrm_state_province state_province ON state_province.id = address.state_province_id
+      FROM
+        civicrm_contact contact_a
     ";
   }
 
@@ -77,13 +73,26 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     $count  = 1;
     $clause = array();
-    $name   = CRM_Utils_Array::value('contact_name', $this->_formValues);
+
+    // process first name
+    $name   = CRM_Utils_Array::value('contact_first_name', $this->_formValues);
     if ($name != NULL) {
       if (strpos($name, '%') === FALSE) {
         $name = "%{$name}%";
       }
       $params[$count] = array($name, 'String');
-      $clause[] = "contact_a.household_name LIKE %{$count}";
+      $clause[] = "contact_a.first_name LIKE %{$count}";
+      $count++;
+    }
+
+    // process last name
+    $name   = CRM_Utils_Array::value('contact_last_name', $this->_formValues);
+    if ($name != NULL) {
+      if (strpos($name, '%') === FALSE) {
+        $name = "%{$name}%";
+      }
+      $params[$count] = array($name, 'String');
+      $clause[] = "contact_a.last_name LIKE %{$count}";
       $count++;
     }
 
