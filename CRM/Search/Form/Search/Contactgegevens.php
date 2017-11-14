@@ -22,6 +22,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $form->add('text', 'contact_last_name', 'Naam contact', TRUE);
     $formElements[] = 'contact_last_name';
 
+    // postal code
+    $form->add('text', 'titularis_postal_code', 'Postcode(s) apotheek', TRUE);
+    $formElements[] = 'titularis_postal_code';
+
     // titularis
     $form->addElement('checkbox', 'titularis', 'apotheek (titularis)');
     $formElements[] = 'titularis';
@@ -73,8 +77,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       , titu_addr.street_address titu_street
       , titu_addr.postal_code titu_postal_code
       , titu_addr.city titu_city
-      , uitb.rondenummer_38 apb_number
-      , uitb.apb_nummer_43 round_number
+      , uitb.rondenummer_38 round_number
+      , uitb.apb_nummer_43 apb_number
       , grooth.display_name grooth_name
       , tarif.display_name tarif_name
     ";
@@ -154,6 +158,28 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       $params[$count] = array($name, 'String');
       $clause[] = "contact_a.last_name LIKE %{$count}";
       $count++;
+    }
+
+    // postal code(s) - can be comma separated
+    $postal_codes = CRM_Utils_Array::value('titularis_postal_code', $this->_formValues);
+    if ($name != NULL) {
+      $postal_codes_arr = explode(',', $postal_codes);
+      if (count($postal_codes_arr) > 1) {
+        $c = 'titu.postal_code in (';
+        foreach ($postal_codes_arr as $k => $postal_code) {
+          if ($k <> 0) {
+            $c .= ',';
+          }
+          $c .= "'" . trim($postal_code) . "'";
+        }
+        $c .= ')';
+        $clause[] = $c;
+        $count++;
+      }
+      else {
+        $clause[] = "titu.postal_code = '" . trim($postal_codes_arr[0]) . "'";
+        $count++;
+      }
     }
 
     if (!empty($clause)) {
