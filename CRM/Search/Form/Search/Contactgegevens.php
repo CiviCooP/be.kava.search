@@ -34,6 +34,16 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $form->addElement('checkbox', 'groothandel', 'incl. Groothandel');
     $formElements[] = 'groothandel';
 
+    // members
+    $form->addElement('checkbox', 'members', 'Enkel leden');
+    $formElements[] = 'members';
+
+
+    $form->setDefaults(array(
+      'titularis' => '1',
+      'members' => '1',
+    ));
+
     $form->assign('elements', $formElements);
   }
 
@@ -180,6 +190,13 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         $clause[] = "titu_addr.postal_code = '" . trim($postal_codes_arr[0]) . "'";
         $count++;
       }
+    }
+
+    // members
+    $members_only = CRM_Utils_Array::value('members', $this->_formValues);
+    if ($members_only != NULL) {
+      $clause[] = 'tarif.id IS NOT NULL';
+      $count++;
     }
 
     if (!empty($clause)) {
