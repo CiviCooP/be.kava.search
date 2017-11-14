@@ -99,7 +99,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // titularis & uitbating
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship titu_rel ON titu_rel.contact_id_b = contact_a.id AND titu_rel.relationship_type_id = $reltypeTitularis
+        civicrm_relationship titu_rel ON titu_rel.contact_id_b = contact_a.id AND titu_rel.is_active = 1 and titu_rel.relationship_type_id = $reltypeTitularis
       LEFT OUTER JOIN
         civicrm_contact titu ON titu_rel.contact_id_a = titu.id
       LEFT OUTER JOIN
@@ -111,7 +111,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // groothandel
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = titu.id AND grooth_rel.relationship_type_id = $reltypeGroothandel
+        civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = titu.id AND grooth.is_active = 1 and grooth_rel.relationship_type_id = $reltypeGroothandel
       LEFT OUTER JOIN
         civicrm_contact grooth ON grooth_rel.contact_id_b = grooth.id
     ";
@@ -119,7 +119,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // Tarifieringsdienst
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship tarif_rel ON tarif_rel.contact_id_a = titu.id AND tarif_rel.relationship_type_id = $reltypeTarifieringsdienst
+        civicrm_relationship tarif_rel ON tarif_rel.contact_id_a = titu.id AND tarif_rel.is_active = 1 and tarif_rel.relationship_type_id = $reltypeTarifieringsdienst
       LEFT OUTER JOIN
         civicrm_contact tarif ON tarif_rel.contact_id_b = tarif.id
     ";
