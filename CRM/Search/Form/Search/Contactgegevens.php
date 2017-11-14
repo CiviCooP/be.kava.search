@@ -23,12 +23,12 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $formElements[] = 'contact_last_name';
 
     // postal code
-    $form->add('text', 'titularis_postal_code', 'Postcode(s) apotheek', TRUE);
-    $formElements[] = 'titularis_postal_code';
+    $form->add('text', 'apo_postal_code', 'Postcode(s) apotheek', TRUE);
+    $formElements[] = 'apo_postal_code';
 
-    // titularis
-    $form->addElement('checkbox', 'titularis', 'Apotheek (titularis)');
-    $formElements[] = 'titularis';
+    // pharmacy
+    $form->addElement('checkbox', 'pharmacy_details', 'Apotheekgegevens');
+    $formElements[] = 'pharmacy_details';
 
     // groothandel
     $form->addElement('checkbox', 'groothandel', 'incl. Groothandel');
@@ -36,8 +36,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     // customer/member type
     $contactTypeChoices = array(
-      '1' => 'klanten',
-      '2' => 'leden',
+      '1' => 'enkel klanten',
+      '2' => 'enkel leden',
       '3' => 'klanten + leden',
       '4' => 'alle contacten',
     );
@@ -49,13 +49,13 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       '1' => 'TD3 + TD1',
       '2' => 'alleen TD3',
       '3' => 'alleen TD1',
-      '4' => '-',
+      '4' => 'n.v.t.',
     );
     $form->addRadio('tarif', 'TD', $tarifChoices);
     $formElements[] = 'tarif';
 
     $form->setDefaults(array(
-      'titularis' => '1',
+      'pharmacy_details' => '1',
       'contact_type' => '3',
       'groothandel' => '1',
       'tarif' => '4',
@@ -76,14 +76,14 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       'Lid?' => 'member',
     );
 
-    if (CRM_Utils_Array::value('titularis', $this->_formValues)) {
-      $columns['Is titularis van'] = 'titu_name';
+    if (CRM_Utils_Array::value('pharmacy_details', $this->_formValues)) {
+      $columns['Is titularis van'] = 'apo_name';
       $columns['APB'] = 'apb_number';
       $columns['Ronde'] = 'round_number';
       $columns['TD'] = 'tarif_name';
-      $columns['Apo straat'] = 'titu_street';
-      $columns['Apo postcode'] = 'titu_postal_code';
-      $columns['Apo gemeente'] = 'titu_city';
+      $columns['Apo straat'] = 'apo_street';
+      $columns['Apo postcode'] = 'apo_postal_code';
+      $columns['Apo gemeente'] = 'apo_city';
     }
 
     if (CRM_Utils_Array::value('groothandel', $this->_formValues)) {
@@ -111,10 +111,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
             , '-'
           ) 
         ) member
-      , apo.display_name titu_name
-      , apo_addr.street_address titu_street
-      , apo_addr.postal_code titu_postal_code
-      , apo_addr.city titu_city
+      , apo.display_name apo_name
+      , apo_addr.street_address apo_street
+      , apo_addr.postal_code apo_postal_code
+      , apo_addr.city apo_city
       , uitb.rondenummer_38 round_number
       , uitb.apb_nummer_43 apb_number
       , grooth.display_name grooth_name
@@ -136,7 +136,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_contact contact_a
     ";
 
-    // titularis & uitbating
+    // apotheek & uitbating
     $from .= "
       LEFT OUTER JOIN
         civicrm_relationship apo_rel ON apo_rel.contact_id_b = contact_a.id AND apo_rel.is_active = 1 and apo_rel.relationship_type_id = $reltypeTitularis
@@ -209,7 +209,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     }
 
     // postal code(s) - can be comma separated
-    $postal_codes = CRM_Utils_Array::value('titularis_postal_code', $this->_formValues);
+    $postal_codes = CRM_Utils_Array::value('apo_postal_code', $this->_formValues);
     if ($postal_codes != NULL) {
       $postal_codes_arr = explode(',', $postal_codes);
       if (count($postal_codes_arr) > 1) {
