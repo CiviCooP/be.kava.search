@@ -41,7 +41,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       '3' => 'klanten + leden',
       '4' => 'alle contacten',
     );
-    $form->addRadio('contact_type', 'Soort', $contactTypeChoices);
+    $form->addRadio('contact_type', 'Klant/lid', $contactTypeChoices);
     $formElements[] = 'contact_type';
 
     // tarifiering
