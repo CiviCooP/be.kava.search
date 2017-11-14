@@ -27,10 +27,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function &columns() {
     // return by reference
     $columns = array(
-      E::ts('Contact') => 'sort_name',
+      E::ts('Name') => 'sort_name',
       E::ts('Contact Id') => 'contact_id',
       E::ts('Contact Type') => 'contact_type',
-      E::ts('Name') => 'sort_name',
       E::ts('State') => 'state_province',
     );
     return $columns;
@@ -46,7 +45,6 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       contact_a.sort_name,
       contact_a.id           as contact_id  ,
       contact_a.contact_type as contact_type,
-      contact_a.sort_name    as sort_name,
       state_province.name    as state_province    
     ";
 
