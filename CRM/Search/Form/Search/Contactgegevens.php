@@ -165,7 +165,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     if ($postal_codes != NULL) {
       $postal_codes_arr = explode(',', $postal_codes);
       if (count($postal_codes_arr) > 1) {
-        $c = 'titu.postal_code in (';
+        $c = 'titu_addr.postal_code in (';
         foreach ($postal_codes_arr as $k => $postal_code) {
           if ($k <> 0) {
             $c .= ',';
