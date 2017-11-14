@@ -14,8 +14,13 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     $formElements = array();
 
+    // contact name field
     $form->add('text', 'contact_name', 'Naam contact', TRUE);
     $formElements[] = 'contact_name';
+
+    // groothandel
+    $form->addElement('checkbox', 'groothandel', 'incl. Groothandel');
+    $formElements[] = 'groothandel';
 
     $form->assign('elements', $formElements);
   }
@@ -64,13 +69,15 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
   function where($includeContactIDs = FALSE) {
     $params = array();
-    $where = "contact_a.contact_type   = 'Individual'";
+    $where = "
+      contact_a.contact_type = 'Individual'
+      and contact_a.is_deleted = 0
+      and contact_a.is_deceased = 0
+    ";
 
     $count  = 1;
     $clause = array();
-    $name   = CRM_Utils_Array::value('household_name',
-      $this->_formValues
-    );
+    $name   = CRM_Utils_Array::value('contact_name', $this->_formValues);
     if ($name != NULL) {
       if (strpos($name, '%') === FALSE) {
         $name = "%{$name}%";
@@ -80,20 +87,6 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       $count++;
     }
 
-    $state = CRM_Utils_Array::value('state_province_id',
-      $this->_formValues
-    );
-    if (!$state &&
-      $this->_stateID
-    ) {
-      $state = $this->_stateID;
-    }
-
-    if ($state) {
-      $params[$count] = array($state, 'Integer');
-      $clause[] = "state_province.id = %{$count}";
-    }
-
     if (!empty($clause)) {
       $where .= ' AND ' . implode(' AND ', $clause);
     }
@@ -101,22 +94,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     return $this->whereClause($where, $params);
   }
 
-  /**
-   * Determine the Smarty template for the search screen
-   *
-   * @return string, template path (findable through Smarty template path)
-   */
   function templateFile() {
     return 'CRM/Contact/Form/Search/Custom.tpl';
   }
 
-  /**
-   * Modify the content of each row
-   *
-   * @param array $row modifiable SQL result row
-   * @return void
-   */
   function alterRow(&$row) {
-    $row['sort_name'] .= ' ( altered )';
   }
 }
