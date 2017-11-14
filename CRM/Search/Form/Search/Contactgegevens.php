@@ -27,7 +27,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $formElements[] = 'titularis_postal_code';
 
     // titularis
-    $form->addElement('checkbox', 'titularis', 'apotheek (titularis)');
+    $form->addElement('checkbox', 'titularis', 'Apotheek (titularis)');
     $formElements[] = 'titularis';
 
     // groothandel
@@ -51,6 +51,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $form->setDefaults(array(
       'titularis' => '1',
       'members' => '1',
+      'customers' => '1',
     ));
 
     $form->assign('elements', $formElements);
