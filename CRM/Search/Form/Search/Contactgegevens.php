@@ -111,10 +111,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
             , '-'
           ) 
         ) member
-      , titu.display_name titu_name
-      , titu_addr.street_address titu_street
-      , titu_addr.postal_code titu_postal_code
-      , titu_addr.city titu_city
+      , apo.display_name titu_name
+      , apo_addr.street_address titu_street
+      , apo_addr.postal_code titu_postal_code
+      , apo_addr.city titu_city
       , uitb.rondenummer_38 round_number
       , uitb.apb_nummer_43 apb_number
       , grooth.display_name grooth_name
@@ -139,19 +139,19 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // titularis & uitbating
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship titu_rel ON titu_rel.contact_id_b = contact_a.id AND titu_rel.is_active = 1 and titu_rel.relationship_type_id = $reltypeTitularis
+        civicrm_relationship apo_rel ON apo_rel.contact_id_b = contact_a.id AND apo_rel.is_active = 1 and apo_rel.relationship_type_id = $reltypeTitularis
       LEFT OUTER JOIN
-        civicrm_contact titu ON titu_rel.contact_id_a = titu.id
+        civicrm_contact apo ON apo_rel.contact_id_a = apo.id
       LEFT OUTER JOIN
-        civicrm_address titu_addr ON titu_addr.contact_id = titu.id AND titu_addr.location_type_id = 2
+        civicrm_address apo_addr ON apo_addr.contact_id = apo.id AND apo_addr.location_type_id = 2
       LEFT OUTER JOIN
-        civicrm_value_contact_apotheekuitbating uitb ON uitb.entity_id = titu.id
+        civicrm_value_contact_apotheekuitbating uitb ON uitb.entity_id = apo.id
     ";
 
     // groothandel
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = titu.id AND grooth_rel.is_active = 1 and grooth_rel.relationship_type_id = $reltypeGroothandel
+        civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = apo.id AND grooth_rel.is_active = 1 and grooth_rel.relationship_type_id = $reltypeGroothandel
       LEFT OUTER JOIN
         civicrm_contact grooth ON grooth_rel.contact_id_b = grooth.id
     ";
@@ -159,7 +159,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // Tarifieringsdienst
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship tarif_rel ON tarif_rel.contact_id_a = titu.id AND tarif_rel.is_active = 1 and tarif_rel.relationship_type_id = $reltypeTarifieringsdienst
+        civicrm_relationship tarif_rel ON tarif_rel.contact_id_a = apo.id AND tarif_rel.is_active = 1 and tarif_rel.relationship_type_id = $reltypeTarifieringsdienst
       LEFT OUTER JOIN
         civicrm_contact tarif ON tarif_rel.contact_id_b = tarif.id
     ";
@@ -213,7 +213,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     if ($postal_codes != NULL) {
       $postal_codes_arr = explode(',', $postal_codes);
       if (count($postal_codes_arr) > 1) {
-        $c = 'titu_addr.postal_code in (';
+        $c = 'apo_addr.postal_code in (';
         foreach ($postal_codes_arr as $k => $postal_code) {
           if ($k <> 0) {
             $c .= ',';
@@ -225,7 +225,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         $count++;
       }
       else {
-        $clause[] = "titu_addr.postal_code = '" . trim($postal_codes_arr[0]) . "'";
+        $clause[] = "apo_addr.postal_code = '" . trim($postal_codes_arr[0]) . "'";
         $count++;
       }
     }
@@ -256,15 +256,15 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     if ($tarif != NULL) {
       if ($tarif == 1) {
         // TD1+TD3
-        $clause[] = "tarif_name in ('TD1', 'TD3')";
+        $clause[] = "tarif.display_name in ('TD1', 'TD3')";
       }
       else if ($tarif == 2) {
         // TD3
-        $clause[] = "tarif_name = 'TD3'";
+        $clause[] = "tarif.display_name = 'TD3'";
       }
       else if ($tarif == 3) {
         // TD1
-        $clause[] = "tarif_name = 'TD1'";
+        $clause[] = "tarif.display_name = 'TD1'";
       }
       else if ($tarif == 4) {
         //
