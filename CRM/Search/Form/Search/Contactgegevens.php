@@ -108,7 +108,19 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
           if (
             mwk_rel.id IS NOT NULL
             , 'Meewerkend lid'
-            , '-'
+            , if (
+              jaar_rel.id IS NOT NULL
+              , '1 jaar afgestud.'
+              if (
+                corr_rel.id IS NOT NULL
+                , 'Corresponderend lid'
+                if (
+                  ere_rel.id IS NOT NULL
+                  , 'erelid'
+                  , '-'
+                )
+              )
+            )
           ) 
         ) member
       , apo.display_name apo_name
@@ -143,6 +155,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $reltypeTarifieringsdienst = 36;
     $reltypeWerkendLid = 43;
     $reltypeMeewerkendLid = 44;
+    $reltype1jaarLid = 49;
+    $reltypeCorrespLid = 46;
+    $reltypeEreLid = 42;
 
     $from = "
       FROM
@@ -177,12 +192,18 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_contact tarif ON tarif_rel.contact_id_b = tarif.id
     ";
 
-    // werkend/meewerkend members
+    // members
     $from .= "
       LEFT OUTER JOIN
         civicrm_relationship wk_rel ON wk_rel.contact_id_a = contact_a.id AND wk_rel.is_active = 1 and wk_rel.relationship_type_id = $reltypeWerkendLid
       LEFT OUTER JOIN
-        civicrm_relationship mwk_rel ON mwk_rel.contact_id_a = contact_a.id AND mwk_rel.is_active = 1 and mwk_rel.relationship_type_id = $reltypeMeewerkendLid        
+        civicrm_relationship mwk_rel ON mwk_rel.contact_id_a = contact_a.id AND mwk_rel.is_active = 1 and mwk_rel.relationship_type_id = $reltypeMeewerkendLid
+      LEFT OUTER JOIN
+        civicrm_relationship jaar_rel ON jaar_rel.contact_id_a = contact_a.id AND jaar_rel.is_active = 1 and jaar_rel.relationship_type_id = $reltype1jaarLid        
+      LEFT OUTER JOIN
+        civicrm_relationship corr_rel ON corr_rel.contact_id_a = contact_a.id AND corr_rel.is_active = 1 and corr_rel.relationship_type_id = $reltypeCorrespLid        
+      LEFT OUTER JOIN
+        civicrm_relationship ere_rel ON ere_rel.contact_id_a = contact_a.id AND ere_rel.is_active = 1 and ere_rel.relationship_type_id = $reltypeEreLid                        
     ";
 
     return $from;
