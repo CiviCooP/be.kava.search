@@ -104,9 +104,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // groothandel
     $from .= "
       LEFT OUTER JOIN
-        civicrm_relationship grooth_rel ON grooth_rel.contact_id_b = contact_a.id AND grooth_rel.relationship_type_id = $reltypeGroothandel
+        civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = contact_a.id AND grooth_rel.relationship_type_id = $reltypeGroothandel
       LEFT OUTER JOIN
-        civicrm_contact grooth ON grooth_rel.contact_id_a = grooth.id
+        civicrm_contact grooth ON grooth_rel.contact_id_b = grooth.id
       LEFT OUTER JOIN
         civicrm_address grooth_addr ON grooth_addr.contact_id = grooth.id AND grooth_addr.location_type_id = 2
     ";
