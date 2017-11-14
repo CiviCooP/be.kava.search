@@ -64,6 +64,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // return by reference
     $columns = array(
       'Name' => 'sort_name',
+      'Lid?' => 'member',
     );
 
     if (CRM_Utils_Array::value('titularis', $this->_formValues)) {
