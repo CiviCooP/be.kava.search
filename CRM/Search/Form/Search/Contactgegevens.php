@@ -162,7 +162,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     // postal code(s) - can be comma separated
     $postal_codes = CRM_Utils_Array::value('titularis_postal_code', $this->_formValues);
-    if ($name != NULL) {
+    if ($postal_codes != NULL) {
       $postal_codes_arr = explode(',', $postal_codes);
       if (count($postal_codes_arr) > 1) {
         $c = 'titu.postal_code in (';
