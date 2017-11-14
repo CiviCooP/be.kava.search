@@ -43,6 +43,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       '1' => 'werkend + meewerkend',
       '2' => 'enkel werkend',
       '3' => 'enkel meewerkend',
+      '4' => 'alle contacten',
     );
     $form->addRadio('members', 'Leden', $memberChoice);
     $formElements[] = 'members';
@@ -91,6 +92,15 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $select = "
       contact_a.sort_name
       , contact_a.id as contact_id
+      , if(
+          wk_rel.id IS NOT NULL
+          , 'Werkend lid',
+          if (
+            mwk_rel.id IS NOT NULL
+            , 'Meewerkend lid'
+            , '-'
+          ) 
+        ) member
       , titu.display_name titu_name
       , titu_addr.street_address titu_street
       , titu_addr.postal_code titu_postal_code
@@ -108,6 +118,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $reltypeTitularis = 35;
     $reltypeGroothandel = 60;
     $reltypeTarifieringsdienst = 36;
+    $reltypeWerkendLid = 43;
+    $reltypeMeewerkendLid = 44;
 
     $from = "
       FROM
@@ -140,6 +152,14 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_relationship tarif_rel ON tarif_rel.contact_id_a = titu.id AND tarif_rel.is_active = 1 and tarif_rel.relationship_type_id = $reltypeTarifieringsdienst
       LEFT OUTER JOIN
         civicrm_contact tarif ON tarif_rel.contact_id_b = tarif.id
+    ";
+
+    // werkend/meewerkend members
+    $from .= "
+      LEFT OUTER JOIN
+        civicrm_relationship wk_rel ON wk_rel.contact_id_a = contact_a.id AND wk_rel.is_active = 1 and wk_rel.relationship_type_id = $reltypeWerkendLid
+      LEFT OUTER JOIN
+        civicrm_relationship mwk_rel ON mwk_rel.contact_id_a = contact_a.id AND mwk_rel.is_active = 1 and mwk_rel.relationship_type_id = $reltypeMeewerkendLid        
     ";
 
     return $from;
@@ -204,6 +224,21 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $customers_only = CRM_Utils_Array::value('customers', $this->_formValues);
     if ($customers_only != NULL) {
       $clause[] = 'tarif.id IS NOT NULL';
+      $count++;
+    }
+
+    // members
+    $members_only = CRM_Utils_Array::value('members', $this->_formValues);
+    if ($members_only != NULL) {
+      if ($members_only == 1) {
+       $clause[] = '(wk_rel.id IS NOT NULL OR mwk_rel.id IS NOT NULL)';
+      }
+      else if ($members_only == 2) {
+        $clause[] = 'wk_rel.id IS NOT NULL';
+      }
+      else if ($members_only == 3) {
+        $clause[] = 'mwk_rel.id IS NOT NULL';
+      }
       $count++;
     }
 
