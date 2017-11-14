@@ -34,10 +34,18 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $form->addElement('checkbox', 'groothandel', 'incl. Groothandel');
     $formElements[] = 'groothandel';
 
-    // members
-    $form->addElement('checkbox', 'members', 'Enkel leden');
-    $formElements[] = 'members';
+    // customers
+    $form->addElement('checkbox', 'customers', 'Enkel klanten');
+    $formElements[] = 'customers';
 
+    // members
+    $memberChoice = array(
+      '1' => 'werkend + meewerkend',
+      '2' => 'enkel werkend',
+      '3' => 'enkel meewerkend',
+    );
+    $form->addRadio('members', 'Leden', $memberChoice);
+    $formElements[] = 'members';
 
     $form->setDefaults(array(
       'titularis' => '1',
@@ -192,9 +200,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       }
     }
 
-    // members
-    $members_only = CRM_Utils_Array::value('members', $this->_formValues);
-    if ($members_only != NULL) {
+    // customers
+    $customers_only = CRM_Utils_Array::value('customers', $this->_formValues);
+    if ($customers_only != NULL) {
       $clause[] = 'tarif.id IS NOT NULL';
       $count++;
     }
