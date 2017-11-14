@@ -125,7 +125,16 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   }
 
   public function contactIDs($offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = FALSE) {
-    return $this->all($offset, $rowcount, $sort, FALSE, TRUE);
+    // hack to make the counter work
+    $sort->_vars[1]['name'] = 'contact_a.sort_name';
+    $sql = $this->sql('contact_a.id as contact_id', $offset, $rowcount, $sort);
+    $this->validateUserSQL($sql);
+
+    if ($returnSQL) {
+      return $sql;
+    }
+
+    return CRM_Core_DAO::composeQuery($sql, array());
   }
 
   function from() {
