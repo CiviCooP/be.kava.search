@@ -36,9 +36,16 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function &columns() {
     // return by reference
     $columns = array(
-      E::ts('Name') => 'sort_name',
-      E::ts('Contact Id') => 'contact_id',
+      'Name' => 'sort_name',
+      'Is titularis van' => 'titu_name',
     );
+
+    if (CRM_Utils_Array::value('titularis', $this->_formValues)) {
+      $columns['Titularis straat'] = 'titu_street';
+      $columns['Titularis postcode'] = 'titu_postal_code';
+      $columns['Titularis gemeente'] = 'titu_city';
+    }
+
     return $columns;
   }
 
@@ -49,18 +56,51 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
   function select() {
     $select = "
-      contact_a.sort_name,
-      contact_a.id as contact_id  ,
+      contact_a.sort_name
+      , contact_a.id as contact_id
+      , titu.display_name titu_name
+      , titu_addr.street_address titu_street
+      , titu_addr.postal_code titu_postal_code
+      , titu_addr.city titu_city
+      , grooth.display_name grooth_name
+      , grooth_addr.street_address grooth_street
+      , grooth_addr.postal_code grooth_postal_code
+      , grooth_addr.city grooth_city
     ";
 
     return $select;
   }
 
   function from() {
-    return "
+    $reltypeTitularis = 35;
+    $reltypeGroothandel = 60;
+
+    $from = "
       FROM
         civicrm_contact contact_a
     ";
+
+    // titularis
+    $form .= "
+      LEFT OUTER JOIN
+        civicrm_relationship titu_rel ON titu_rel.contact_id_b = contact_a.id AND titu_rel.relationship_type_id = $reltypeTitularis
+      LEFT OUTER JOIN
+        civicrm_contact titu ON titu_rel.contact_id_a = titu.id
+      LEFT OUTER JOIN
+        civicrm_address titu_addr ON titu_addr.contact_id = titu.id AND titu_addr.location_type_id = 2
+    ";
+
+    // groothandel
+    $form .= "
+      LEFT OUTER JOIN
+        civicrm_relationship grooth_rel ON grooth_rel.contact_id_b = contact_a.id AND grooth_rel.relationship_type_id = $reltypeGroothandel
+      LEFT OUTER JOIN
+        civicrm_contact grooth ON grooth_rel.contact_id_a = grooth.id
+      LEFT OUTER JOIN
+        civicrm_address grooth_addr ON grooth_addr.contact_id = grooth.id AND grooth_addr.location_type_id = 2
+    ";
+
+    return $from;
   }
 
   function where($includeContactIDs = FALSE) {
