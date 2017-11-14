@@ -45,6 +45,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     if (CRM_Utils_Array::value('titularis', $this->_formValues)) {
       $columns['Is titularis van'] = 'titu_name';
+      $columns['APB'] = 'apb_number';
+      $columns['Ronde'] = 'round_number';
+      $columns['Tarifiëring'] = 'tarif_name';
       $columns['Titularis straat'] = 'titu_street';
       $columns['Titularis postcode'] = 'titu_postal_code';
       $columns['Titularis gemeente'] = 'titu_city';
@@ -52,9 +55,6 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
     if (CRM_Utils_Array::value('groothandel', $this->_formValues)) {
       $columns['Groothandel'] = 'grooth_name';
-      $columns['Groothandel straat'] = 'grooth_street';
-      $columns['Groothandel postcode'] = 'grooth_postal_code';
-      $columns['Groothandel gemeente'] = 'grooth_city';
     }
 
     return $columns;
@@ -73,10 +73,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       , titu_addr.street_address titu_street
       , titu_addr.postal_code titu_postal_code
       , titu_addr.city titu_city
+      , uitb.rondenummer_38 apb_number
+      , uitb.apb_nummer_43 round_number
       , grooth.display_name grooth_name
-      , grooth_addr.street_address grooth_street
-      , grooth_addr.postal_code grooth_postal_code
-      , grooth_addr.city grooth_city
+      , tarif.display_name tarif_name
     ";
 
     return $select;
@@ -85,13 +85,14 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function from() {
     $reltypeTitularis = 35;
     $reltypeGroothandel = 60;
+    $reltypeTarifieringsdienst = 36;
 
     $from = "
       FROM
         civicrm_contact contact_a
     ";
 
-    // titularis
+    // titularis & uitbating
     $from .= "
       LEFT OUTER JOIN
         civicrm_relationship titu_rel ON titu_rel.contact_id_b = contact_a.id AND titu_rel.relationship_type_id = $reltypeTitularis
@@ -99,6 +100,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_contact titu ON titu_rel.contact_id_a = titu.id
       LEFT OUTER JOIN
         civicrm_address titu_addr ON titu_addr.contact_id = titu.id AND titu_addr.location_type_id = 2
+      LEFT OUTER JOIN
+        civicrm_value_contact_apotheekuitbating uitb ON uitb.entity_id = titu.id
     ";
 
     // groothandel
@@ -107,8 +110,14 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = titu.id AND grooth_rel.relationship_type_id = $reltypeGroothandel
       LEFT OUTER JOIN
         civicrm_contact grooth ON grooth_rel.contact_id_b = grooth.id
+    ";
+
+    // Tarifieringsdienst
+    $from .= "
       LEFT OUTER JOIN
-        civicrm_address grooth_addr ON grooth_addr.contact_id = grooth.id AND grooth_addr.location_type_id = 2
+        civicrm_relationship tarif_rel ON tarif_rel.contact_id_a = titu.id AND tarif_rel.relationship_type_id = $reltypeTarifieringsdienst
+      LEFT OUTER JOIN
+        civicrm_contact tarif ON tarif_rel.contact_id_b = tarif.id
     ";
 
     return $from;
