@@ -72,7 +72,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // return by reference
     $columns = array(
       'Name' => 'sort_name',
-      'Civi ID' => 'contact_a.id',
+      'Civi ID' => 'contact_id',
       'Lid?' => 'member',
     );
 
