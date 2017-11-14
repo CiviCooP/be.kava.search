@@ -177,7 +177,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         $count++;
       }
       else {
-        $clause[] = "titu.postal_code = '" . trim($postal_codes_arr[0]) . "'";
+        $clause[] = "titu_addr.postal_code = '" . trim($postal_codes_arr[0]) . "'";
         $count++;
       }
     }
