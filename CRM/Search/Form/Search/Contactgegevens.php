@@ -111,10 +111,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
             , if (
               jaar_rel.id IS NOT NULL
               , '1 jaar afgestud.'
-              if (
+              , if (
                 corr_rel.id IS NOT NULL
                 , 'Corresponderend lid'
-                if (
+                , if (
                   ere_rel.id IS NOT NULL
                   , 'erelid'
                   , '-'
