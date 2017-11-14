@@ -22,6 +22,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $form->add('text', 'contact_last_name', 'Naam contact', TRUE);
     $formElements[] = 'contact_last_name';
 
+    // titularis
+    $form->addElement('checkbox', 'titularis', 'apotheek (titularis)');
+    $formElements[] = 'titularis';
+
     // groothandel
     $form->addElement('checkbox', 'groothandel', 'incl. Groothandel');
     $formElements[] = 'groothandel';
@@ -37,13 +41,20 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // return by reference
     $columns = array(
       'Name' => 'sort_name',
-      'Is titularis van' => 'titu_name',
     );
 
     if (CRM_Utils_Array::value('titularis', $this->_formValues)) {
+      $columns['Is titularis van'] = 'titu_name';
       $columns['Titularis straat'] = 'titu_street';
       $columns['Titularis postcode'] = 'titu_postal_code';
       $columns['Titularis gemeente'] = 'titu_city';
+    }
+
+    if (CRM_Utils_Array::value('groothandel', $this->_formValues)) {
+      $columns['Groothandel'] = 'grooth_name';
+      $columns['Groothandel straat'] = 'grooth_street';
+      $columns['Groothandel postcode'] = 'grooth_postal_code';
+      $columns['Groothandel gemeente'] = 'grooth_city';
     }
 
     return $columns;
@@ -81,7 +92,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     ";
 
     // titularis
-    $form .= "
+    $from .= "
       LEFT OUTER JOIN
         civicrm_relationship titu_rel ON titu_rel.contact_id_b = contact_a.id AND titu_rel.relationship_type_id = $reltypeTitularis
       LEFT OUTER JOIN
@@ -91,7 +102,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     ";
 
     // groothandel
-    $form .= "
+    $from .= "
       LEFT OUTER JOIN
         civicrm_relationship grooth_rel ON grooth_rel.contact_id_b = contact_a.id AND grooth_rel.relationship_type_id = $reltypeGroothandel
       LEFT OUTER JOIN
