@@ -95,6 +95,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
 
   function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $justIDs = FALSE) {
     $sql = $this->sql($this->select(), $offset, $rowcount, $sort, $includeContactIDs, NULL);
+    //die($sql);
     return $sql;
   }
 
@@ -110,18 +111,22 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
             , 'Meewerkend lid'
             , if (
               jaar_rel.id IS NOT NULL
-              , '1 jaar afgestud.'
+              , '1 jaar afgestud. lid'
               , if (
                 corr_rel.id IS NOT NULL
                 , 'Corresponderend lid'
                 , if (
                   ere_rel.id IS NOT NULL
                   , 'erelid'
-                  , '-'
+                  , if (
+                    afgest_rel.id IS NOT NULL
+                    , 'afgestud. lid'
+                    , '-'
+                  )
                 )
               )
             )
-          ) 
+          )
         ) member
       , apo.display_name apo_name
       , apo_addr.street_address apo_street
@@ -153,11 +158,13 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $reltypeTitularis = 35;
     $reltypeGroothandel = 60;
     $reltypeTarifieringsdienst = 36;
-    $reltypeWerkendLid = 43;
-    $reltypeMeewerkendLid = 44;
+
     $reltype1jaarLid = 49;
+    $reltypeAfgestudeerdLid = 47;
     $reltypeCorrespLid = 46;
     $reltypeEreLid = 42;
+    $reltypeMeewerkendLid = 44;
+    $reltypeWerkendLid = 43;
 
     $from = "
       FROM
@@ -195,11 +202,13 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     // members
     $from .= "
       LEFT OUTER JOIN
+        civicrm_relationship jaar_rel ON jaar_rel.contact_id_a = contact_a.id AND jaar_rel.is_active = 1 and jaar_rel.relationship_type_id = $reltype1jaarLid
+      LEFT OUTER JOIN
+        civicrm_relationship afgest_rel ON afgest_rel.contact_id_a = contact_a.id AND afgest_rel.is_active = 1 and afgest_rel.relationship_type_id = $reltypeAfgestudeerdLid                        
+      LEFT OUTER JOIN
         civicrm_relationship wk_rel ON wk_rel.contact_id_a = contact_a.id AND wk_rel.is_active = 1 and wk_rel.relationship_type_id = $reltypeWerkendLid
       LEFT OUTER JOIN
         civicrm_relationship mwk_rel ON mwk_rel.contact_id_a = contact_a.id AND mwk_rel.is_active = 1 and mwk_rel.relationship_type_id = $reltypeMeewerkendLid
-      LEFT OUTER JOIN
-        civicrm_relationship jaar_rel ON jaar_rel.contact_id_a = contact_a.id AND jaar_rel.is_active = 1 and jaar_rel.relationship_type_id = $reltype1jaarLid        
       LEFT OUTER JOIN
         civicrm_relationship corr_rel ON corr_rel.contact_id_a = contact_a.id AND corr_rel.is_active = 1 and corr_rel.relationship_type_id = $reltypeCorrespLid        
       LEFT OUTER JOIN
