@@ -84,7 +84,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       $columns['Overname'] = 'overname_number';
       $columns['Ronde'] = 'round_number';
       $columns['TD'] = 'tarif_name';
-      $columns['BTW-nummer'] = 'vat';
+      $columns['BTW-nummer'] = 'vat_number';
       $columns['Apo straat'] = 'apo_street';
       $columns['Apo postcode'] = 'apo_postal_code';
       $columns['Apo gemeente'] = 'apo_city';
