@@ -142,8 +142,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   }
 
   public function contactIDs($offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = FALSE) {
-    // hack to make the counter work
+    // dirty hack to make the counter work
     $sort->_vars[1]['name'] = 'contact_a.sort_name';
+    $sort->_vars[2]['name'] = 'contact_a.contact_id';
     $sql = $this->sql('contact_a.id as contact_id', $offset, $rowcount, $sort);
     $this->validateUserSQL($sql);
 
