@@ -69,18 +69,22 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   }
 
   function &columns() {
-    // return by reference
     $columns = array(
       'Name' => 'sort_name',
       'Civi ID' => 'contact_id',
       'Lid?' => 'member',
+      'Taal' => 'lang',
+      'Barcode' => 'barcode',
     );
 
+    // see if checkbox "apotheekgegevens" is set
     if (CRM_Utils_Array::value('pharmacy_details', $this->_formValues)) {
       $columns['Is titularis van'] = 'apo_name';
       $columns['APB'] = 'apb_number';
+      $columns['Overname'] = 'overname_number';
       $columns['Ronde'] = 'round_number';
       $columns['TD'] = 'tarif_name';
+      $columns['BTW-nummer'] = 'vat';
       $columns['Apo straat'] = 'apo_street';
       $columns['Apo postcode'] = 'apo_postal_code';
       $columns['Apo gemeente'] = 'apo_city';
@@ -128,12 +132,16 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
             )
           )
         ) member
+      , substring(contact_a.preferred_language, 1, 2) lang
+      , ce.barcode_60 barcode
+      , apo_org.btw_nummer_24 vat_number
       , apo.display_name apo_name
       , apo_addr.street_address apo_street
       , apo_addr.postal_code apo_postal_code
       , apo_addr.city apo_city
       , uitb.rondenummer_38 round_number
       , uitb.apb_nummer_43 apb_number
+      , uitb.overname_44 overname_number
       , grooth.display_name grooth_name
       , tarif.display_name tarif_name
     ";
@@ -170,6 +178,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $from = "
       FROM
         civicrm_contact contact_a
+      LEFT OUTER JOIN
+        civicrm_value_contact_extra ce on ce.entity_id = contact_a.id
     ";
 
     // apotheek & uitbating
@@ -182,6 +192,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_address apo_addr ON apo_addr.contact_id = apo.id AND apo_addr.location_type_id = 2
       LEFT OUTER JOIN
         civicrm_value_contact_apotheekuitbating uitb ON uitb.entity_id = apo.id
+      LEFT OUTER JOIN
+        civicrm_value_contact_organisation apo_org ON apo_org.entity_id = apo.id
     ";
 
     // groothandel
