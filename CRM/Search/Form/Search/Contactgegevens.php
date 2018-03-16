@@ -71,6 +71,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function &columns() {
     $columns = array(
       'Name' => 'sort_name',
+      'Roepnaam' => 'nick_name',
+      'Riziv-nr' => 'ca.riziv_nummer_14',
+      'Bandagistnr' => 'ca.bandagistnummer_17',
       'Civi ID' => 'contact_id',
       'Lid?' => 'member',
       'Taal' => 'lang',
@@ -106,6 +109,9 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function select() {
     $select = "
       contact_a.sort_name
+      , contact_a.nick_name
+      , ca.riziv_nummer_14
+      , ca.bandagistnummer_17
       , contact_a.id as contact_id
       , if(
           wk_rel.id IS NOT NULL
@@ -181,6 +187,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_contact contact_a
       LEFT OUTER JOIN
         civicrm_value_contact_extra ce on ce.entity_id = contact_a.id
+      LEFT OUTER JOIN
+        civicrm_value_contact_apotheker ca on ca.entity_id = contact_a.id
     ";
 
     // apotheek & uitbating
