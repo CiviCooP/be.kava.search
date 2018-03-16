@@ -378,7 +378,11 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   }
 
   function templateFile() {
-    return 'CRM/Contact/Form/Search/Custom.tpl';
+    // STRANGE: the relative path does not work in kava production environment
+    // so as a quick fix we use the full path
+    // leaving out templateFile() does not work either
+    //return 'CRM/Contact/Form/Search/Custom.tpl';
+    return '/kava/www.kava.be/sites/all/modules/civicrm/templates/CRM/Contact/Form/Search/Custom.tpl';
   }
 
   public function count() {
