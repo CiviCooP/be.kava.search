@@ -71,24 +71,35 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function &columns() {
     $columns = array(
       'Name' => 'sort_name',
+      'Voornaam' => 'first_name',
+      'Achternaam' => 'last_name',
       'Roepnaam' => 'nick_name',
-      'Riziv-nr' => 'ca.riziv_nummer_14',
-      'Bandagistnr' => 'ca.bandagistnummer_17',
+      'Telefoon' => 'pers_phone',
+      'E-mail' => 'pers_email',
+      'Riziv-nr' => 'riziv_nummer_14',
+      'Bandagistnr' => 'bandagistnummer_17',
       'Civi ID' => 'contact_id',
       'Lid?' => 'member',
       'Taal' => 'lang',
       'Barcode' => 'barcode',
+      'Straat' => 'pers_street',
+      'Extra adreslijn' => 'pers_supplemental_address_1',
+      'Postcode' => 'pers_postal_code',
+      'Gemeente' => 'pers_city',
     );
 
     // see if checkbox "apotheekgegevens" is set
     if (CRM_Utils_Array::value('pharmacy_details', $this->_formValues)) {
       $columns['Is titularis van'] = 'apo_name';
+      $columns['Apo telefoon'] = 'apo_phone';
+      $columns['Apo email'] = 'apo_email';
       $columns['APB'] = 'apb_number';
       $columns['Overname'] = 'overname_number';
       $columns['Ronde'] = 'round_number';
       $columns['TD'] = 'tarif_name';
       $columns['BTW-nummer'] = 'vat_number';
       $columns['Apo straat'] = 'apo_street';
+      $columns['Apo extra adreslijn'] = 'apo_supplemental_address_1';
       $columns['Apo postcode'] = 'apo_postal_code';
       $columns['Apo gemeente'] = 'apo_city';
     }
@@ -109,7 +120,11 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   function select() {
     $select = "
       contact_a.sort_name
+      , contact_a.first_name
+      , contact_a.last_name
       , contact_a.nick_name
+      , persphone.phone pers_phone
+      , persemail.email pers_email
       , ca.riziv_nummer_14
       , ca.bandagistnummer_17
       , contact_a.id as contact_id
@@ -140,9 +155,17 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         ) member
       , substring(contact_a.preferred_language, 1, 2) lang
       , ce.barcode_60 barcode
+      , pers_addr.street_address pers_street
+      , pers_addr.supplemental_address_1 pesr_supplemental_address_1
+      , pers_addr.postal_code pers_postal_code
+      , pers_addr.city pers_city
+
       , apo_org.btw_nummer_24 vat_number
       , apo.display_name apo_name
+      , apophone.phone apo_phone
+      , apoemail.email apo_email
       , apo_addr.street_address apo_street
+      , apo_addr.supplemental_address_1 apo_supplemental_address_1
       , apo_addr.postal_code apo_postal_code
       , apo_addr.city apo_city
       , uitb.rondenummer_38 round_number
@@ -186,9 +209,15 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       FROM
         civicrm_contact contact_a
       LEFT OUTER JOIN
+        civicrm_email persemail on persemail.contact_id = contact_a.id and persemail.is_primary = 1 
+      LEFT OUTER JOIN
+        civicrm_phone persphone on persphone.contact_id = contact_a.id and persphone.is_primary = 1 
+      LEFT OUTER JOIN
         civicrm_value_contact_extra ce on ce.entity_id = contact_a.id
       LEFT OUTER JOIN
         civicrm_value_contact_apotheker ca on ca.entity_id = contact_a.id
+      LEFT OUTER JOIN
+        civicrm_address pers_addr ON pers_addr.contact_id = contact_a.id AND pers_addr.is_primary = 1        
     ";
 
     // apotheek & uitbating
@@ -199,6 +228,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_contact apo ON apo_rel.contact_id_a = apo.id
       LEFT OUTER JOIN
         civicrm_address apo_addr ON apo_addr.contact_id = apo.id AND apo_addr.location_type_id = 2
+      LEFT OUTER JOIN
+        civicrm_email apoemail on apoemail.contact_id = apo.id and apoemail.is_primary = 1 
+      LEFT OUTER JOIN
+        civicrm_phone apophone on apophone.contact_id = apo.id and apophone.is_primary = 1         
       LEFT OUTER JOIN
         civicrm_value_contact_apotheekuitbating uitb ON uitb.entity_id = apo.id
       LEFT OUTER JOIN
