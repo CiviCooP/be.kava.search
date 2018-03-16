@@ -22,6 +22,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $form->add('text', 'contact_last_name', 'Naam contact', TRUE);
     $formElements[] = 'contact_last_name';
 
+    // contact barcode field
+    $form->add('text', 'contact_barcode', 'Barcode contact', TRUE);
+    $formElements[] = 'contact_barcode';
+
     // postal code
     $form->add('text', 'apo_postal_code', 'Postcode(s) apotheek', TRUE);
     $formElements[] = 'apo_postal_code';
@@ -98,10 +102,15 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       $columns['Ronde'] = 'round_number';
       $columns['TD'] = 'tarif_name';
       $columns['BTW-nummer'] = 'vat_number';
+      $columns['Apo barcode'] = 'apo_barcode';
       $columns['Apo straat'] = 'apo_street';
       $columns['Apo extra adreslijn'] = 'apo_supplemental_address_1';
       $columns['Apo postcode'] = 'apo_postal_code';
       $columns['Apo gemeente'] = 'apo_city';
+
+      $columns['Apo eigenaar voornaam'] = 'owner_first_name';
+      $columns['Apo eigenaar achternaam'] = 'owner_last_name';
+      $columns['Apo eigenaar roepnaam'] = 'owner_nick_name';
     }
 
     if (CRM_Utils_Array::value('groothandel', $this->_formValues)) {
@@ -161,6 +170,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       , pers_addr.city pers_city
 
       , apo_org.btw_nummer_24 vat_number
+      , apo_ce.barcode_60 apo_barcode
       , apo.display_name apo_name
       , apophone.phone apo_phone
       , apoemail.email apo_email
@@ -173,6 +183,10 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       , uitb.overname_44 overname_number
       , grooth.display_name grooth_name
       , tarif.display_name tarif_name
+      
+      , owner.first_name owner_first_name
+      , owner.last_name owner_last_name
+      , owner.nick_name owner_nick_name
     ";
 
     return $select;
@@ -197,6 +211,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
     $reltypeTitularis = 35;
     $reltypeGroothandel = 60;
     $reltypeTarifieringsdienst = 36;
+    $reltypeOwner = 56;
 
     $reltype1jaarLid = 49;
     $reltypeAfgestudeerdLid = 47;
@@ -236,6 +251,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_value_contact_apotheekuitbating uitb ON uitb.entity_id = apo.id
       LEFT OUTER JOIN
         civicrm_value_contact_organisation apo_org ON apo_org.entity_id = apo.id
+      LEFT OUTER JOIN
+        civicrm_value_contact_extra apo_ce on apo_ce.entity_id = apo.id        
     ";
 
     // groothandel
@@ -244,6 +261,14 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_relationship grooth_rel ON grooth_rel.contact_id_a = apo.id AND grooth_rel.is_active = 1 and grooth_rel.relationship_type_id = $reltypeGroothandel
       LEFT OUTER JOIN
         civicrm_contact grooth ON grooth_rel.contact_id_b = grooth.id
+    ";
+
+    // eigenaar
+    $from .= "
+      LEFT OUTER JOIN
+        civicrm_relationship owner_rel ON owner_rel.contact_id_a = apo.id AND owner_rel.is_active = 1 and owner_rel.relationship_type_id = $reltypeOwner
+      LEFT OUTER JOIN
+        civicrm_contact owner ON owner_rel.contact_id_b = owner.id
     ";
 
     // Tarifieringsdienst
@@ -303,6 +328,14 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       }
       $params[$count] = array($name, 'String');
       $clause[] = "contact_a.last_name LIKE %{$count}";
+      $count++;
+    }
+
+    // process barcode
+    $barcode = CRM_Utils_Array::value('contact_barcode', $this->_formValues);
+    if ($barcode != NULL) {
+      $params[$count] = array($barcode, 'String');
+      $clause[] = "ce.barcode_60 = %{$count}";
       $count++;
     }
 
