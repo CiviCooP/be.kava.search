@@ -370,11 +370,11 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       }
       else if ($contact_type == 2) {
         // leden
-        $clause[] = '(wk_rel.id IS NOT NULL OR mwk_rel.id IS NOT NULL or jaar_rel.id IS NOT NULL or corr_rel.id IS NOT NULL or ere_rel.id IS NOT NULL)';
+        $clause[] = '(wk_rel.id IS NOT NULL OR mwk_rel.id IS NOT NULL or jaar_rel.id IS NOT NULL or afgest_rel.id IS NOT NULL or corr_rel.id IS NOT NULL or ere_rel.id IS NOT NULL)';
       }
       else if ($contact_type == 3) {
         // klanten of leden
-        $clause[] = '(tarif_rel.id IS NOT NULL OR wk_rel.id IS NOT NULL OR mwk_rel.id IS NOT NULL or jaar_rel.id IS NOT NULL or corr_rel.id IS NOT NULL or ere_rel.id IS NOT NULL)';
+        $clause[] = '(tarif_rel.id IS NOT NULL OR wk_rel.id IS NOT NULL OR mwk_rel.id IS NOT NULL or jaar_rel.id IS NOT NULL or afgest_rel.id IS NOT NULL or corr_rel.id IS NOT NULL or ere_rel.id IS NOT NULL)';
       }
       else if ($contact_type == 4) {
         // iedereen
