@@ -111,6 +111,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       $columns['Apo eigenaar voornaam'] = 'owner_first_name';
       $columns['Apo eigenaar achternaam'] = 'owner_last_name';
       $columns['Apo eigenaar roepnaam'] = 'owner_nick_name';
+      $columns['Apo eigenaar barcode'] = 'owner_barcode';
     }
 
     if (CRM_Utils_Array::value('groothandel', $this->_formValues)) {
@@ -187,6 +188,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
       , owner.first_name owner_first_name
       , owner.last_name owner_last_name
       , owner.nick_name owner_nick_name
+      , owner_ce.barcode_60 owner_barcode
     ";
 
     return $select;
@@ -269,6 +271,8 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
         civicrm_relationship owner_rel ON owner_rel.contact_id_a = apo.id AND owner_rel.is_active = 1 and owner_rel.relationship_type_id = $reltypeOwner
       LEFT OUTER JOIN
         civicrm_contact owner ON owner_rel.contact_id_b = owner.id
+      LEFT OUTER JOIN
+        civicrm_value_contact_extra owner_ce on owner_ce.entity_id = owner.id                
     ";
 
     // Tarifieringsdienst
@@ -411,11 +415,7 @@ class CRM_Search_Form_Search_Contactgegevens extends CRM_Contact_Form_Search_Cus
   }
 
   function templateFile() {
-    // STRANGE: the relative path does not work in kava production environment
-    // so as a quick fix we use the full path
-    // leaving out templateFile() does not work either
-    //return 'CRM/Contact/Form/Search/Custom.tpl';
-    return '/kava/www.kava.be/sites/all/modules/civicrm/templates/CRM/Contact/Form/Search/Custom.tpl';
+    return 'CRM/Contact/Form/Search/Custom.tpl';
   }
 
   public function count() {
